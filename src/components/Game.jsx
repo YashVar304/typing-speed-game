@@ -49,27 +49,33 @@ function Game({ difficulty, customParagraphs }) {
     const handleKeyDown = (e) => {
         if (e.key === " ") {
             e.preventDefault();
-            checkWord(inputValue.trim());
-            setInputValue("");
+
+            if (inputValue.trim().length > 0) {
+                checkWord(inputValue.trim());
+                setInputValue("");
+            }
         }
     };
+
 
     const checkWord = (typedWord) => {
         const currentWord = words[currentWordIndex]?.word;
         const newWords = [...words];
 
+
         if (typedWord === currentWord) {
             newWords[currentWordIndex].typed = "correct";
-            setCorrectWords(correctWords + 1);
+            setCorrectWords((prev) => prev + 1);
         } else {
             newWords[currentWordIndex].typed = "incorrect";
-            setIncorrectWords(incorrectWords + 1);
+            setIncorrectWords((prev) => prev + 1);
         }
 
-        setWords(newWords);
-        setCurrentWordIndex(currentWordIndex + 1);
+        setWords(newWords); // Update words array with typing result
+        setCurrentWordIndex((prev) => prev + 1); // Move to the next word
     };
 
+    // Calculate words per minute (WPM)
     const calculateWPM = () => {
         if (!startTime) return 0;
         const now = new Date();
@@ -77,6 +83,7 @@ function Game({ difficulty, customParagraphs }) {
         return Math.round((correctWords + incorrectWords) / minutes);
     };
 
+    // Calculate typing accuracy percentage
     const calculateAccuracy = () => {
         const totalWordsTyped = correctWords + incorrectWords;
         return totalWordsTyped === 0 ? 100 : Math.round((correctWords / totalWordsTyped) * 100);
@@ -90,10 +97,12 @@ function Game({ difficulty, customParagraphs }) {
                         <span
                             key={index}
                             className={`inline-block mr-2 ${wordObj.typed === "correct"
-                                ? "text-green-500"
-                                : wordObj.typed === "incorrect"
-                                    ? "text-red-500"
-                                    : ""
+                                    ? "text-green-500"
+                                    : wordObj.typed === "incorrect"
+                                        ? "text-red-500"
+                                        : currentWordIndex === index
+                                            ? "text-black"
+                                            : "text-gray-400"
                                 }`}
                         >
                             {wordObj.word}
@@ -112,7 +121,6 @@ function Game({ difficulty, customParagraphs }) {
                 autoFocus
                 placeholder="Start typing..."
             />
-
 
             <Stats wpm={calculateWPM()} accuracy={calculateAccuracy()} />
         </div>
